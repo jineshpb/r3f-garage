@@ -1,0 +1,17 @@
+{
+  "metadata": {
+    "soundFile": "J:\\React projects\\3D avatar\\r3f-vite-starter\\public\\audio\\make_me.ogg",
+    "duration": 1.07
+  },
+  "mouthCues": [
+    { "start": 0.00, "end": 0.02, "value": "X" },
+    { "start": 0.02, "end": 0.10, "value": "A" },
+    { "start": 0.10, "end": 0.20, "value": "C" },
+    { "start": 0.20, "end": 0.27, "value": "B" },
+    { "start": 0.27, "end": 0.35, "value": "A" },
+    { "start": 0.35, "end": 0.40, "value": "B" },
+    { "start": 0.40, "end": 0.52, "value": "C" },
+    { "start": 0.52, "end": 0.80, "value": "B" },
+    { "start": 0.80, "end": 1.07, "value": "X" }
+  ]
+}

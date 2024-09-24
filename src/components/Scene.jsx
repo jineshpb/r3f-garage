@@ -1,5 +1,6 @@
 import {
   AccumulativeShadows,
+  ContactShadows,
   Environment,
   Lightformer,
   OrbitControls,
@@ -17,41 +18,26 @@ import { DEG2RAD } from "three/src/math/MathUtils";
 import AmbassadorMaterials from "./AmbassadorMaterials";
 import VWPoloMaterials from "./VWPoloMaterials";
 import SuzukiSwiftMaterials from "./SuzukiSwiftMaterials";
+import { Avatar } from "./Avatar";
 
 export const Scene = ({ mainColor, path, ...props }) => {
   const { nodes, materials, scene } = useGLTF(path);
 
-  // useEffect(() => {
-  //   scene.traverse((child) => {
-  //     if (child.isMesh) {
-  //       child.castShadow = true;
-  //       child.receiveShadow = true;
-  //     }
-  //   });
-  // }, [scene]);
+  console.log("mainColor", mainColor);
 
   const ratioScale = Math.min(1.2, Math.max(0.5, window.innerWidth / 1920));
 
   const renderModelComponent = () => {
+    console.log("props", props);
     switch (props.name) {
       case "Ambassador":
-        return (
-          <AmbassadorMaterials
-            scene={scene}
-            materials={materials}
-            scale={ratioScale}
-          />
-        );
+        return <AmbassadorMaterials scene={scene} />;
       case "VW Polo":
-        return <VWPoloMaterials scene={scene} scale={ratioScale} />;
+        return <VWPoloMaterials scene={scene} />;
       case "Suzuki Swift":
-        return (
-          <SuzukiSwiftMaterials
-            scene={scene}
-            materials={materials}
-            scale={ratioScale}
-          />
-        );
+        return <SuzukiSwiftMaterials scene={scene} materials={materials} />;
+      default:
+        return <primitive object={scene} scale={ratioScale} />;
     }
   };
 
@@ -76,35 +62,46 @@ export const Scene = ({ mainColor, path, ...props }) => {
           maxDistance={10}
           autoRotateSpeed={0.5}
         />
-        {/* <ambientLight intensity={0.1} color={mainColor} /> */}
+        <ambientLight intensity={0.1} color={mainColor} />
+        <Avatar position={[1.5, 0, 0]} ratioScale={ratioScale} />
 
         {renderModelComponent()}
 
         <AccumulativeShadows
           temporal
-          frames={100}
+          frames={30}
           color={mainColor}
           colorBlend={2}
-          opacity={0.8}
+          opacity={1}
           toneMapped={true}
           alphaTest={0.75}
-          scale={30}
+          scale={10}
         >
-          <RandomizedLight
+          {/* <RandomizedLight
             amount={4}
             radius={9}
             intensity={4}
             ambient={0}
             position={[10, 15, 15]}
-          />
+          /> */}
           <RandomizedLight
             amount={4}
-            radius={5}
-            intensity={0.5}
+            radius={9}
+            intensity={4}
             position={[-5, 5, 15]}
-            bias={0.001}
+            bias={0.01}
           />
         </AccumulativeShadows>
+        <ContactShadows
+          renderOrder={2}
+          frames={1}
+          resolution={1024}
+          scale={120}
+          blur={2}
+          opacity={0.6}
+          far={100}
+        />
+
         {/* <Environment blur={0.8} background>
           <Sphere scale={15}>
             <meshBasicMaterial color={mainColor} side={THREE.BackSide} />

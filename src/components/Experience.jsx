@@ -17,6 +17,7 @@ import { Scene } from "./Scene";
 import { useEffect, useRef } from "react";
 import { BoxGeometry } from "three";
 import * as THREE from "three";
+import { Avatar } from "./Avatar";
 
 export const scenes = [
   {
@@ -33,7 +34,7 @@ export const scenes = [
   },
   {
     path: "models/Suzuki_Swift_mod_sketchfab_01.glb",
-    mainColor: "#E2E8F0",
+    mainColor: "#FEF9C3",
     name: "Suzuki Swift",
     description: "Swift is a minimalistic car model.",
   },
@@ -44,6 +45,8 @@ const CameraHandler = ({ slideDistance }) => {
   const cameraControls = useRef();
   const [slide] = useAtom(slideAtom);
   const lastSlide = useRef(0);
+
+  console.log("viewport", viewport);
 
   const { dollyDistance } = useControls({
     dollyDistance: {
@@ -145,8 +148,8 @@ export const Experience = () => {
 
   return (
     <>
-      {/* <ambientLight intensity={0.2} /> */}
-      {/* <Environment preset={"city"} /> */}
+      <ambientLight intensity={0.2} />
+      <Environment preset={"city"} />
       <CameraHandler slideDistance={slideDistance} />
       {/*Main world*/}
       <group>
