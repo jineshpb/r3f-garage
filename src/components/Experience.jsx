@@ -24,19 +24,19 @@ export const scenes = [
     path: "models/ambassador-minimal_04.glb",
     mainColor: "#FEF3C7",
     name: "Ambassador",
-    description: "Ambassador is a minimalistic car model.",
+    description: "Mad max inspired doomsday weapon",
   },
   {
     path: "models/VW_polo.glb",
     mainColor: "#E2E8F0",
     name: "VW Polo",
-    description: "VW Polo is a minimalistic car model.",
+    description: "Custom mode is still on the way",
   },
   {
     path: "models/Suzuki_Swift_mod_sketchfab_01.glb",
     mainColor: "#FEF9C3",
     name: "Suzuki Swift",
-    description: "Swift is a minimalistic car model.",
+    description: "Widebody suzuki swift",
   },
 ];
 
@@ -48,13 +48,15 @@ const CameraHandler = ({ slideDistance }) => {
 
   console.log("viewport", viewport);
 
-  const { dollyDistance } = useControls({
-    dollyDistance: {
-      value: 10,
-      min: 0,
-      max: 50,
-    },
-  });
+  // const { dollyDistance } = useControls({
+  //   dollyDistance: {
+  //     value: 10,
+  //     min: 0,
+  //     max: 50,
+  //   },
+  // });
+
+  const dollyDistance = 10;
 
   const moveToSlide = async () => {
     if (!cameraControls.current) {
@@ -138,13 +140,15 @@ const CameraHandler = ({ slideDistance }) => {
 
 export const Experience = () => {
   const viewport = useThree((state) => state.viewport);
-  const { slideDistance } = useControls({
-    slideDistance: {
-      value: 1,
-      min: 0,
-      max: 10,
-    },
-  });
+  // const { slideDistance } = useControls({
+  //   slideDistance: {
+  //     value: 1,
+  //     min: 0,
+  //     max: 10,
+  //   },
+  // });
+
+  const slideDistance = 1;
 
   return (
     <>

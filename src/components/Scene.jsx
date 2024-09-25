@@ -23,8 +23,6 @@ import { Avatar } from "./Avatar";
 export const Scene = ({ mainColor, path, ...props }) => {
   const { nodes, materials, scene } = useGLTF(path);
 
-  console.log("mainColor", mainColor);
-
   const ratioScale = Math.min(1.2, Math.max(0.5, window.innerWidth / 1920));
 
   const renderModelComponent = () => {

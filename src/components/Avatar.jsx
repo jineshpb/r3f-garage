@@ -8,6 +8,18 @@ import { useControls } from "leva";
 import { useFrame, useLoader } from "@react-three/fiber";
 import * as THREE from "three";
 
+import {
+  Root,
+  Container,
+  Text,
+  setPreferredColorScheme,
+  Content,
+  Fullscreen,
+} from "@react-three/uikit";
+
+import { Button } from "./apfel/button";
+import { Card } from "./apfel/card";
+
 const correspondingVisemes = {
   A: "viseme_PP",
   B: "viseme_kk",
@@ -21,121 +33,22 @@ const correspondingVisemes = {
 };
 
 export function Avatar(props, { ratioScale }) {
-  const { playAudio, script } = useControls({
-    playAudio: false,
-    script: {
-      value: "intro",
-      options: ["intro", "make_me"],
-    },
-  });
+  // const { playAudio, script } = useControls({
+  //   playAudio: false,
+  //   script: {
+  //     value: "intro",
+  //     options: ["intro", "make_me"],
+  //   },
+  // });
 
-  const audio = useMemo(() => new Audio(`/audio/${script}.mp3`), [script]);
-  const [animation, setAnimation] = useState("idle");
-  const { nodes, materials } = useGLTF("/models/model_with_morph_targets.glb");
+  const playAudio = false;
+  const script = "intro";
 
-  console.log("nodes", nodes);
-
-  useEffect(() => {
-    const handleAudioStart = () => {
-      if (script === "intro") {
-        setAnimation("greeting");
-      } else if (script === "make_me") {
-        setAnimation("angry");
-      }
-    };
-
-    const handleAudioEnd = () => {
-      if (script === "make_me") {
-        setAnimation("angry");
-      } else {
-        setAnimation("idle");
-      }
-    };
-
-    if (playAudio) {
-      audio.play();
-      handleAudioStart();
-    } else {
-      audio.pause();
-      setAnimation("idle");
-    }
-
-    audio.addEventListener("play", handleAudioStart);
-    audio.addEventListener("ended", handleAudioEnd);
-
-    return () => {
-      audio.removeEventListener("play", handleAudioStart);
-      audio.removeEventListener("ended", handleAudioEnd);
-    };
-  }, [playAudio, script]);
-
-  const [jsonData, setJsonData] = useState(null);
-  const [jsonError, setJsonError] = useState(null);
-
-  useEffect(() => {
-    const loadJson = async () => {
-      try {
-        const response = await fetch(`/audio/${script}.json`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const jsonData = await response.json();
-        console.log("Loaded JSON data:", jsonData);
-        setJsonData(jsonData);
-        setJsonError(null);
-      } catch (error) {
-        console.error("Error loading JSON:", error);
-        setJsonError(error.message);
-        setJsonData(null);
-      }
-    };
-
-    loadJson();
-  }, [script]);
-
-  useFrame(() => {
-    const currentAudioTime = audio.currentTime;
-    if (audio.paused || audio.ended) {
-      // Remove this line to prevent overriding the animation set by the event listener
-      // setAnimation("angry");
-    }
-
-    Object.values(correspondingVisemes).forEach((viseme) => {
-      nodes.Wolf3D_Head.morphTargetInfluences[
-        nodes.Wolf3D_Head.morphTargetDictionary[viseme]
-      ] = 0;
-      nodes.Wolf3D_Teeth.morphTargetInfluences[
-        nodes.Wolf3D_Teeth.morphTargetDictionary[viseme]
-      ] = 0;
-    });
-
-    if (jsonData) {
-      for (let i = 0; i < jsonData.mouthCues.length; i++) {
-        const mouthCue = jsonData.mouthCues[i];
-        if (
-          currentAudioTime >= mouthCue.start &&
-          currentAudioTime <= mouthCue.end
-        ) {
-          nodes.Wolf3D_Head.morphTargetInfluences[
-            nodes.Wolf3D_Head.morphTargetDictionary[
-              correspondingVisemes[mouthCue.value]
-            ]
-          ] = 1;
-          nodes.Wolf3D_Teeth.morphTargetInfluences[
-            nodes.Wolf3D_Teeth.morphTargetDictionary[
-              correspondingVisemes[mouthCue.value]
-            ]
-          ] = 1;
-          break;
-        }
-      }
-    }
-  });
-
+  const [currentAnimation, setCurrentAnimation] = useState("idle");
+  const { nodes, materials } = useGLTF("/models/bob_cut.glb");
   const { animations: idleAnimations } = useFBX(
     "/models/animations/Standing_Idle.fbx"
   );
-
   const { animations: angryAnimations } = useFBX(
     "/models/animations/Angry.fbx"
   );
@@ -143,34 +56,64 @@ export function Avatar(props, { ratioScale }) {
     "/models/animations/Standing_Greeting.fbx"
   );
 
-  idleAnimations[0].name = "idle";
-  angryAnimations[0].name = "angry";
-  greetingAnimations[0].name = "greeting";
+  const animationMap = {
+    idle: idleAnimations,
+    angry: angryAnimations,
+    greeting: greetingAnimations,
+  };
+
+  const allAnimations = [
+    ...idleAnimations,
+    ...angryAnimations,
+    ...greetingAnimations,
+  ];
+  allAnimations.forEach((anim, index) => {
+    anim.name = `animation_${index}`;
+  });
 
   const group = useRef();
 
-  const { actions } = useAnimations(
-    [idleAnimations[0], angryAnimations[0], greetingAnimations[0]],
-    group
-  );
-
-  console.log("actions", actions);
+  const { actions } = useAnimations(allAnimations, group);
 
   useEffect(() => {
-    console.log("this is the animation", animation);
-    actions[animation].reset().fadeIn(0.5).play();
-    return () => actions[animation].fadeOut(0.5);
-  }, [animation]);
+    const currentAnimations = animationMap[currentAnimation] || idleAnimations;
+    let currentIndex = 0;
 
-  // useEffect(() => {
-  //   console.log(nodes.Wolf3D_Head.morphTargetDictionary);
-  //   nodes.Wolf3D_Head.morphTargetInfluences[
-  //     nodes.Wolf3D_Head.morphTargetDictionary["viseme_O"]
-  //   ] = 1;
-  //   nodes.Wolf3D_Teeth.morphTargetInfluences[
-  //     nodes.Wolf3D_Teeth.morphTargetDictionary["viseme_O"]
-  //   ] = 1;
-  // }, []);
+    console.log("length", allAnimations.length);
+
+    const playNextAnimation = () => {
+      const animationName = `animation_${currentIndex}`;
+      console.log("Attempting to play:", animationName);
+
+      if (actions[animationName] && currentIndex < allAnimations.length) {
+        console.log("Found animation:", animationName);
+
+        const action = actions[animationName];
+        action.reset().fadeIn(0.5).play();
+
+        // Log the total number of animations
+        console.log("Total animations:", allAnimations.length);
+
+        // Increment the index, but wrap around to 0 if we've reached the end
+        currentIndex = (currentIndex + 1) % allAnimations.length;
+        console.log("Next index:", currentIndex);
+      } else {
+        console.error(
+          "Animation not found:",
+          animationName,
+          "Total animations:",
+          allAnimations.length
+        );
+        // Reset the index if we've gone out of bounds
+        currentIndex = 0;
+      }
+    };
+
+    playNextAnimation();
+    const intervalId = setInterval(playNextAnimation, 5000);
+
+    return () => clearInterval(intervalId);
+  }, [actions, currentAnimation, animationMap]);
 
   return (
     <group {...props} dispose={null} ref={group} scale={ratioScale}>
@@ -233,6 +176,20 @@ export function Avatar(props, { ratioScale }) {
         skeleton={nodes.Wolf3D_Body.skeleton}
       />
     </group>
+  );
+}
+
+export function CardPage() {
+  // useFrame((_, delta) => {
+  //   easing.damp(translateY, "value", openRef.current ? 0 : -460, 0.2, delta);
+  //   easing.damp(translateZ, "value", openRef.current ? 200 : 0, 0.2, delta);
+  // });
+  return (
+    <Root backgroundColor="red">
+      <Button variant="rect" size="sm" platter>
+        <Text>Label</Text>
+      </Button>
+    </Root>
   );
 }
 

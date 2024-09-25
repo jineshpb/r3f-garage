@@ -6,21 +6,24 @@ import { useEffect } from "react";
 import * as THREE from "three";
 
 function App() {
-  const { mapping, exposure } = useControls({
-    exposure: { value: 0.85, min: 0, max: 4 },
-    mapping: {
-      value: "ACESFilmic",
-      options: [
-        "No",
-        "Linear",
-        "AgX",
-        "ACESFilmic",
-        "Reinhard",
-        "Cineon",
-        "Custom",
-      ],
-    },
-  });
+  // const { mapping, exposure } = useControls({
+  //   exposure: { value: 0.85, min: 0, max: 4 },
+  //   mapping: {
+  //     value: "ACESFilmic",
+  //     options: [
+  //       "No",
+  //       "Linear",
+  //       "AgX",
+  //       "ACESFilmic",
+  //       "Reinhard",
+  //       "Cineon",
+  //       "Custom",
+  //     ],
+  //   },
+  // });
+
+  const exposure = 1.05;
+  const mapping = "Linear";
   return (
     <>
       <Leva />
